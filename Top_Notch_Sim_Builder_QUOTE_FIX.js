@@ -1,4 +1,4 @@
-/* Top Notch Sim Builder — Quote Fix */
+/* Top Notch Sim Builder — Quote Fix (Formspree) */
 (function(){
   "use strict";
   var tries=0;
@@ -45,19 +45,17 @@
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)){ status(false,"Please enter a valid email address."); return; }
 
       var payload={
-        "_subject":"New Top Notch Simulator Quote — "+customerName,
-        "_template":"table",
-        "_replyto":customerEmail,
-        "Customer Name":customerName,
-        "Customer Email":customerEmail,
-        "Customer Phone":customerPhone||"Not provided",
-        "Room":reviewValue("Room"),
+        "subject":"New Top Notch Simulator Quote — "+customerName,
+        "name":customerName,
+        "email":customerEmail,
+        "phone":customerPhone||"Not provided",
+        "message":notes||"None",
+        "Room Dimensions":reviewValue("Room"),
         "Enclosure + Screen":reviewValue("Enclosure + Screen"),
         "Launch Monitor":reviewValue("Launch Monitor"),
         "Projector":reviewValue("Projector"),
         "Hitting Mat":reviewValue("Hitting Mat"),
         "Estimated Product Total":reviewValue("Estimated Product Total"),
-        "Customer Notes":notes||"None",
         "Source":"Top Notch Sim Builder"
       };
 
@@ -65,17 +63,20 @@
       btn.disabled=true;
       btn.textContent="Sending…";
       try{
-        var response=await fetch("https://formsubmit.co/ajax/sales@topntochgolf.ca",{
+        var response=await fetch("https://formspree.io/f/mgaveeol",{
           method:"POST",
           headers:{"Content-Type":"application/json","Accept":"application/json"},
           body:JSON.stringify(payload)
         });
         var data=await response.json().catch(function(){return {};});
-        if(!response.ok||data.success===false) throw new Error(data.message||"Quote submission failed");
+        if(!response.ok){
+          var detail=(data.errors&&data.errors.length&&data.errors[0].message)?data.errors[0].message:"Quote submission failed.";
+          throw new Error(detail);
+        }
         status(true,"<strong>Thanks — your simulator build has been sent to Top Notch Golf.</strong><br>We’ll review the configuration and follow up with you about the quote.");
         btn.textContent="Quote Request Sent";
       }catch(err){
-        console.error("Top Notch quote submission error",err);
+        console.error("Top Notch Formspree quote submission error",err);
         status(false,"We couldn’t send the quote request right now. Please try again, or email <strong>sales@topntochgolf.ca</strong>.");
         btn.disabled=false;
         btn.textContent=old;
