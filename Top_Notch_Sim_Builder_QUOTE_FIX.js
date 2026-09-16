@@ -42,7 +42,7 @@
       var customerPhone=phone.value.trim();
       var notes=document.getElementById("tnsb-quote-fix-notes").value.trim();
       if(!customerName){ status(false,"Please enter your name."); return; }
-      if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(customerEmail)){ status(false,"Please enter a valid email address."); return; }
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)){ status(false,"Please enter a valid email address."); return; }
 
       var payload={
         "_subject":"New Top Notch Simulator Quote — "+customerName,
