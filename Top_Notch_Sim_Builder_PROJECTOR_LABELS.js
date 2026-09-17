@@ -8,13 +8,9 @@
 
     var badges=list.querySelectorAll(".tnsb-badge");
     for(var i=0;i<badges.length;i++){
-      var text=badges[i].textContent.trim();
-
-      if(text==="Recommended" || text==="Ideal native match"){
-        badges[i].textContent="Recommended fit";
-      }
-
-      if(text==="Adjustable support" || text==="Usable — confirm setup" || text==="Adjustable / compromise"){
+      if(badges[i].classList.contains("tnsb-green")){
+        badges[i].textContent="Recommended Fit";
+      }else if(badges[i].classList.contains("tnsb-yellow")){
         badges[i].textContent="Supported";
       }
     }
