@@ -1,6 +1,9 @@
-/* Top Notch Sim Builder — projector recommendation label cleanup */
+/* Top Notch Sim Builder — projector recommendation label cleanup (safe) */
 (function(){
   "use strict";
+
+  var observer=null;
+  var watchedList=null;
 
   function updateProjectorLabels(){
     var list=document.getElementById("tnsb-projector-list");
@@ -8,20 +11,40 @@
 
     var badges=list.querySelectorAll(".tnsb-badge");
     for(var i=0;i<badges.length;i++){
+      var desired=null;
+
       if(badges[i].classList.contains("tnsb-green")){
-        badges[i].textContent="Recommended Fit";
+        desired="Recommended Fit";
       }else if(badges[i].classList.contains("tnsb-yellow")){
-        badges[i].textContent="Supported";
+        desired="Supported";
+      }
+
+      if(desired && badges[i].textContent.trim()!==desired){
+        badges[i].textContent=desired;
       }
     }
   }
 
-  function boot(){
+  function attachObserver(){
+    var list=document.getElementById("tnsb-projector-list");
+    if(!list){
+      setTimeout(attachObserver,200);
+      return;
+    }
+
+    if(watchedList===list) return;
+
+    if(observer) observer.disconnect();
+    watchedList=list;
+
     updateProjectorLabels();
-    setTimeout(updateProjectorLabels,100);
-    setTimeout(updateProjectorLabels,300);
+
+    observer=new MutationObserver(function(){
+      updateProjectorLabels();
+    });
+
+    observer.observe(list,{childList:true,subtree:true});
   }
 
-  boot();
-  new MutationObserver(updateProjectorLabels).observe(document.documentElement,{childList:true,subtree:true,characterData:true});
+  attachObserver();
 })();
