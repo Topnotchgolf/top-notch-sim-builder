@@ -1156,7 +1156,7 @@ product detail links, dynamic compatibility guidance, review + Formspree quote s
         const fl=Math.max(.0001,Math.hypot(fx,fy,fz)),F={x:fx/fl,y:fy/fl,z:fz/fl};
         let R={x:F.z,y:0,z:-F.x};
         const rl=Math.max(.0001,Math.hypot(R.x,R.z));R={x:R.x/rl,y:0,z:R.z/rl};
-        const U={x:-F.y*R.z,y:F.z*R.x-F.x*R.z,z:F.y*R.x};
+        const U={x:F.y*R.z-F.z*R.y,y:F.z*R.x-F.x*R.z,z:F.x*R.y-F.y*R.x};
         const vx=p.x-c.x,vy=p.y-c.y,vz=p.z-c.z;
         const camX=vx*R.x+vy*R.y+vz*R.z;
         const camY=vx*U.x+vy*U.y+vz*U.z;
@@ -1332,7 +1332,7 @@ product detail links, dynamic compatibility guidance, review + Formspree quote s
         }
       }else{
         // V1.38 architectural shell: softer materials, better light and automatic near-wall hiding.
-        const shellBack=viz.view==="golfer"?Math.min(z2,ballZ+2.0):z2;
+        const shellBack=viz.view==="golfer"?Math.min(z2,ballZ+.25):z2;
         face([{x:x1,y:0,z:z1},{x:x2,y:0,z:z1},{x:x2,y:y2,z:z1},{x:x1,y:y2,z:z1}],"#dddeda","#a7ada8",1.1);
         const leftPts=[{x:x1,y:0,z:z1},{x:x1,y:y2,z:z1},{x:x1,y:y2,z:shellBack},{x:x1,y:0,z:shellBack}];
         const rightPts=[{x:x2,y:0,z:z1},{x:x2,y:y2,z:z1},{x:x2,y:y2,z:shellBack},{x:x2,y:0,z:shellBack}];
@@ -1369,7 +1369,7 @@ product detail links, dynamic compatibility guidance, review + Formspree quote s
       if(showFullTurf){
         const turfW=Math.min(r.w*.98,state.puttingMode==="full"?r.w:Math.max(md.w||5,10));
         const turfD=Math.min(r.d*.88,state.puttingMode==="full"?r.d*.82:Math.max(Number(state.puttingL)||10,10));
-        const tz=Math.min(z2-.45,screenZ+turfD);
+        const tz=Math.min(viz.view==="golfer"?ballZ+.22:z2-.45,screenZ+turfD);
         face([{x:-turfW/2,y:.028,z:screenZ+.15},{x:turfW/2,y:.028,z:screenZ+.15},{x:turfW/2,y:.028,z:tz},{x:-turfW/2,y:.028,z:tz}],"#3f714d","#315b3d",1);
         // mower bands
         const bands=6;
@@ -1380,7 +1380,7 @@ product detail links, dynamic compatibility guidance, review + Formspree quote s
       }
       if(state.roughEnabled&&Number(state.roughSqft)>0){
         const roughDepth=Math.min(r.d*.55,Math.max(5,(Number(state.roughSqft)||0)/Math.max(4,r.w*.18)));
-        const rz=Math.min(z2-.5,screenZ+roughDepth);
+        const rz=Math.min(viz.view==="golfer"?ballZ+.22:z2-.5,screenZ+roughDepth);
         const strip=Math.min(2.2,r.w*.14);
         face([{x:x1+.15,y:.034,z:screenZ+.3},{x:x1+strip,y:.034,z:screenZ+.3},{x:x1+strip,y:.034,z:rz},{x:x1+.15,y:.034,z:rz}],"#527b45","#41653a",1);
         face([{x:x2-strip,y:.034,z:screenZ+.3},{x:x2-.15,y:.034,z:screenZ+.3},{x:x2-.15,y:.034,z:rz},{x:x2-strip,y:.034,z:rz}],"#527b45","#41653a",1);
@@ -1447,12 +1447,13 @@ product detail links, dynamic compatibility guidance, review + Formspree quote s
       const matW=Math.min(r.w*.82,sourceMatL),matL=Math.min(r.d*.52,sourceMatW);
       if(matW&&matL){
         // subtle shadow
-        face([{x:-matW/2-.08,y:.035,z:ballZ-matL/2+.08},{x:matW/2+.08,y:.035,z:ballZ-matL/2+.08},{x:matW/2+.08,y:.035,z:ballZ+matL/2+.12},{x:-matW/2-.08,y:.035,z:ballZ+matL/2+.12}],"rgba(20,27,23,.20)",null,0);
+        const matRear=viz.view==="golfer"?Math.min(ballZ+.20,ballZ+matL/2):ballZ+matL/2;
+        const insertRear=viz.view==="golfer"?Math.min(ballZ+.18,ballZ+matL*.36):ballZ+matL*.36;
+        face([{x:-matW/2-.08,y:.035,z:ballZ-matL/2+.08},{x:matW/2+.08,y:.035,z:ballZ-matL/2+.08},{x:matW/2+.08,y:.035,z:matRear+.08},{x:-matW/2-.08,y:.035,z:matRear+.08}],"rgba(20,27,23,.20)",null,0);
         const matFill=m&&m.pricing==="strip"?"#315f3c":"#2f7045";
-        face([{x:-matW/2,y:.052,z:ballZ-matL/2},{x:matW/2,y:.052,z:ballZ-matL/2},{x:matW/2,y:.052,z:ballZ+matL/2},{x:-matW/2,y:.052,z:ballZ+matL/2}],matFill,"#224d31",1.2);
-        // hitting insert / center stripe
+        face([{x:-matW/2,y:.052,z:ballZ-matL/2},{x:matW/2,y:.052,z:ballZ-matL/2},{x:matW/2,y:.052,z:matRear},{x:-matW/2,y:.052,z:matRear}],matFill,"#224d31",1.2);
         const insertW=Math.min(matW*.28,1.25);
-        face([{x:-insertW/2,y:.058,z:ballZ-matL*.36},{x:insertW/2,y:.058,z:ballZ-matL*.36},{x:insertW/2,y:.058,z:ballZ+matL*.36},{x:-insertW/2,y:.058,z:ballZ+matL*.36}],m&&m.pricing==="strip"?"#4e8c58":"#3d8250",null,0);
+        face([{x:-insertW/2,y:.058,z:ballZ-matL*.36},{x:insertW/2,y:.058,z:ballZ-matL*.36},{x:insertW/2,y:.058,z:insertRear},{x:-insertW/2,y:.058,z:insertRear}],m&&m.pricing==="strip"?"#4e8c58":"#3d8250",null,0);
       }
 
       if(f||lm||m){
@@ -1477,7 +1478,7 @@ product detail links, dynamic compatibility guidance, review + Formspree quote s
       }
 
       // Launch monitor — family-aware silhouettes rather than one generic box.
-      if(lm){
+      if(lm&&!(viz.view==="golfer"&&lm.mount==="rear")){
         let lp;
         if(lm.mount==="overhead") lp={x:0,y:Math.max(7.5,r.h-.55),z:Math.max(z1+.6,Math.min(z2-.6,ballZ+vizLMOffset(lm)))};
         else if(lm.mount==="rear") lp={x:0,y:.12,z:Math.min(z2-.65,ballZ+(lm.id==="x3c"?9:7))};
